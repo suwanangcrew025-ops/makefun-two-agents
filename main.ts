@@ -30,8 +30,16 @@ if (points < 1 || points > 280) {
 }
 
 import { join } from "node:path";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+const outPath = join(outDir, "entry.txt");
 mkdirSync(outDir, { recursive: true });
-writeFileSync(join(outDir, "entry.txt"), revised, "utf8");
+writeFileSync(outPath, revised, "utf8");
+
+// Read the file back and confirm it holds exactly the revised poem:
+// a write the grader cannot see is worth nothing, so the entry
+// checks its own output before it reports success.
+if (readFileSync(outPath, "utf8") !== revised) {
+  throw new Error("entry.txt does not match the revised poem");
+}
